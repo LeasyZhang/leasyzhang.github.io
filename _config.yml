@@ -2,11 +2,11 @@
 title: Your Blog
 SEOTitle: 你的博客 | Your Blog
 header-img: img/home-bg.jpg
-email: huxpro@gmail.com
+email: sevenkplus@foxmail.com
 description: ""
 keyword: ""
-url: "http://huangxuan.me"              # your host, for absolute URL
-baseurl: "/huxblog-boilerplate"         # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://github.com/LeasyZhang"              # your host, for absolute URL
+baseurl: "/"         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
 
@@ -46,19 +46,19 @@ kramdown:
 #disqus_username: _your_disqus_short_name_
 
 # Duoshuo settings
-duoshuo_username: huxblog
+#duoshuo_username: huxblog
 # Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
 
 
 
 # Analytics settings
 # Baidu Analytics
-ba_track_id: 4cc1f2d8f3067386cc5cdb626a202900
+# ba_track_id: 4cc1f2d8f3067386cc5cdb626a202900
 # Google Analytics
 ga_track_id: 'UA-142535029-1'            # Format: UA-xxxxxx-xx
-ga_domain: huangxuan.me
+ga_domain: github.io
 
 
 
