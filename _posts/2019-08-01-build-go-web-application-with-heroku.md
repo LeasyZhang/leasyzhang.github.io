@@ -51,7 +51,7 @@ Hello World.
 如果看到Hello World.的信息，说明Go语言已经安装成功了。
 ### 搭建项目结构
 我并不了解标准的Web项目是如何设置目录结构的，作为Java开发，我按照原先的开发习惯使用下面的目录结构:
-![项目结构]((https://leasyzhang.github.io/img/index-go-web-application.jpg))
+![项目结构](https://leasyzhang.github.io/img/index-go-web-application.jpg)
 目录结构解释:
 - api: controller层，负责接收用户请求和发送响应
 - bin: 可执行文件
