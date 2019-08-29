@@ -96,14 +96,14 @@ $ ./hello
 - 在github创建一个repo,名字是sample-gin-web-application,clone到本地.
 - 在根目录下创建两个文件go.mod&go.sum,在go.mod文件中添加
 
-```go
+```
 module sample-gin-web-app
 ```
 
 这表示当前项目的名称,后续部署的时候会用到
 - 在根目录下创建main.go文件,填充代码
 
-```go
+```
 package main
 
 import "fmt"
@@ -143,7 +143,7 @@ $ go get -u github.com/gin-gonic/gin
 这里使用了Gin在github页面的教程[快速教程](https://github.com/gin-gonic/gin#quick-start)
 在main.go文件添加代码
 
-```go
+```
 package main
 
 import "github.com/gin-gonic/gin"
@@ -173,7 +173,7 @@ $ curl localhost:8080/ping
 接下来将func函数抽取出来,我们要实现一个用户处理的功能：在api目录下创建一个userApi.go文件,用来处理user相关的请求
 - 定义一个user模型,在database/dao目录下创建user.go文件
 
-```go
+```
 package dao
 
 type User struct {
@@ -186,7 +186,7 @@ type User struct {
 
 - 在api目录下创建userApi.go文件,创建一个FindUserByID方法,这个方法可以根据用户ID查询用户信息,这里先用Mock的数据
 
-```go
+```
 package api
 
 import (
@@ -211,7 +211,7 @@ func FindUserByID(c *gin.Context) {
 
 修改main.go文件
 
-```go
+```
 package main
 
 import (
@@ -253,7 +253,7 @@ $ go get -u github.com/jinzhu/gorm
 
 - 在database目录下创建dbConnection.go文件,添加代码
 
-```go
+```
 package database
 
 import (
@@ -289,7 +289,7 @@ func GetDBConnection() (*gorm.DB, error) {
 gorm可以将对象映射到数据库表,通过migrate功能,定义好对象之后,gorm可以在数据库创建一张对应的数据库表.
 在user对象添加一个gorm.Model来继承这个对象,这里面包含了id/创建时间/更新时间等字段,然后创建一个tableName方法,gorm会根据这个方法映射到真实的数据库表.
 
-```go
+```
 package dao
 
 import "github.com/jinzhu/gorm"
@@ -309,7 +309,7 @@ func (User) TableName() string {
 
 - 在user.go里面添加一个方法,可以根据ID获取用户信息
 
-```go
+```
 ...
 import (
 	db "sample-gin-web-app/database"
@@ -326,7 +326,7 @@ func GetUserByID(userID int) (target User) {
 
 - 在userApi中引用这个方法,修改FindUserByID方法
 
-```go
+```
 func FindUserByID(c *gin.Context) {
 	var currentUser userDao.User
 	userID, _ := strconv.Atoi(c.Param("id"))
@@ -341,7 +341,7 @@ func FindUserByID(c *gin.Context) {
 - 在main方法中连接数据库
 这里在应用程序启动方法连接数据库,初始化数据库表
 
-```go
+```
 import (
 	userApi "sample-gin-web-app/api"
 	db "sample-gin-web-app/database"
@@ -411,7 +411,7 @@ web: bin/sample-gin-web-app
 - 在开始部署之前需要创建一个postgres数据库,heroku提供一个免费小容量的postgre数据库,在Resources菜单下的Add-ons选项中搜索postgres,选中"Heroku Postgres",添加一个免费的postgres,这样数据库就连接到当前项目中.
 - 现在返回项目中修改数据库链接地址,让其指向我们创建的数据库,heroku在创建一个数据库之后,会添加一个环境变量"DATABASE_URL",这个环境变量存储的是数据库连接,我们把数据库连接串改成
 
-```go
+```
 os.Getenv("DATABASE_URL")
 ```
 
