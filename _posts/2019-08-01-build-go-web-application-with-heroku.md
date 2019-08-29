@@ -48,7 +48,7 @@ Go1.8之后会有一个默认的GOPATH,默认值是～/go,我这里使用默认�
 关于Go WorkSpace官网也有详细的解释[Go WorkSpace](https://golang.org/doc/code.html#Workspaces).
 在GoPath路径下创建文件夹src/hello,创建一个文件hello.go，在hello.go文件中添加代码
 
-```java
+```
 package main
 
 import "fmt"
