@@ -33,7 +33,7 @@ $ brew install go
 
 安装完成之后，查看Go版本号
 
-```Bash
+```bash
 $ go version
 ```
 
