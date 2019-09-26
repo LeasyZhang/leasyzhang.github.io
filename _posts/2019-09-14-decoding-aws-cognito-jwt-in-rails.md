@@ -25,7 +25,8 @@ AWS Cognito是AWS(Amazon Web Service)提供的用户身份认证服务，它包�
 ### AWS Cognito JWT
 Cognito授权成功之后会返回三个token([参考文档](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html))
 - Access Token: JWT数据,包含用户基本信息,数据格式如下
-```json
+
+```javascript
 header:
 {
   "kid": "xxxx",
@@ -50,8 +51,10 @@ payload:
   "username": "xxxx"
 }
 ```
+
 - OIDC Token: JWT,包含更丰富的信息，比如第三方IdP的信息，格式如下
-```json
+
+```javascript
 header:
 {
   "kid": "xxxx",
@@ -111,7 +114,7 @@ decoded_payload = Base64.decode64(payload)
 ```html
 https://cognito-idp.region.amazonaws.com/userPoolId/.well-known/jwks.json
 ```
-把region和userPoolId替换成自己创建的用户池的region和poolId，从上述链接获取JWKS数据,
+把region和userPool Id替换成自己创建的用户池的region和pool Id，从上述链接获取JWKS数据,
 - 构造JWKS对象
 ```ruby
 # keys_url refers to https://cognito-idp.region.amazonaws.com/userPoolId/.well-known/jwks.json

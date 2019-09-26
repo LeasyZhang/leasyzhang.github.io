@@ -141,7 +141,7 @@ $ go get -u github.com/gin-gonic/gin
 ### 创建一个Controller
 
 这里使用了Gin在github页面的教程[快速教程](https://github.com/gin-gonic/gin#quick-start)
-在main.go文件添加代码
+. 在main.go文件添加代码
 
 ```
 package main
@@ -215,7 +215,6 @@ func FindUserByID(c *gin.Context) {
 package main
 
 import (
-	//userApi相当于给api的包取别名,可以用userApi.xx的方式来调用方法
 	userApi "sample-gin-web-app/api"
 
 	"github.com/gin-gonic/gin"
@@ -223,7 +222,6 @@ import (
 
 func main() {
 	r := gin.Default()
-	//响应/user/1之类的请求,然后调用userApi.go文件的FindUserByID方法
 	r.GET("/user/:id", userApi.FindUserByID)
 	r.Run()
 }
@@ -244,7 +242,7 @@ $ go run main.go
 
 到这里我们已经可以处理web请求了,接下来引入数据库处理的功能.
 ### 访问数据库
-数据库操作我用了[gorm](https://github.com/jinzhu/gorm)框架,这是一个用Go语言版本数据库orm框架,支持mysql/postgresql/sqlite等主流数据库.这个里使用postgres数据库来演示.
+数据库操作使用[gorm](https://github.com/jinzhu/gorm)框架,它支持mysql/postgresql/sqlite等主流数据库.这个里使用postgres数据库来演示.
 - 安装gorm库
 
 ```bash
@@ -262,10 +260,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-//数据库连接,获取数据库连接就可以操作数据库表
 var Conn *gorm.DB
 
-//数据库连接串,这里屏蔽掉生产的数据库
 var testDBName = "host=localhost port=5432 user=joe.zhang dbname=mydb password=19950209 sslmode=disable"
 var prodDBName = os.Getenv("DATABASE_URL")
 var DBName = testDBName
@@ -286,7 +282,7 @@ func GetDBConnection() (*gorm.DB, error) {
 ```
 
 - 修改user对象
-gorm可以将对象映射到数据库表,通过migrate功能,定义好对象之后,gorm可以在数据库创建一张对应的数据库表.
+gorm可以将对象映射到数据库表, 通过gorm的migrate方法,可以在定义好对象之后,在数据库创建一张对应的数据库表.
 在user对象添加一个gorm.Model来继承这个对象,这里面包含了id/创建时间/更新时间等字段,然后创建一个tableName方法,gorm会根据这个方法映射到真实的数据库表.
 
 ```
@@ -302,7 +298,7 @@ type User struct {
 }
 
 func (User) TableName() string {
-	//user对象和simple_user表绑定
+	//bind user object to table "simple_user"
 	return "simple_user"
 }
 ```
