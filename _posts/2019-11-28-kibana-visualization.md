@@ -17,7 +17,7 @@ tags:
 ### 背景
 最近接到一个任务，需要统计数据库的业务指标，然后日志需要在Kibana上显示，并且需要根据日志内容构建图形展示。
 比如日志输出的内容是
-```Json
+```json
 {
     "timestamp" : "2019-12-17T05:00:08Z",
     "count" : 324
@@ -47,7 +47,7 @@ tags:
 ```
 我们希望将json文件的内容展开成
 修改logstash.conf文件
-```
+```ruby
 filter {
     json {
         source => "message"
@@ -75,136 +75,74 @@ structured arguments的用法
 ```java
 import static net.logstash.logback.argument.StructuredArguments.*;
 
-/*
- * Add "name":"value" to the JSON output,
- * but only add the value to the formatted message.
- *
- * The formatted message will be `log message value`
- */
+//Add "name":"value" to the JSON output
+//The formatted message will be `log message value`
 logger.info("log message {}", value("name", "value"));
 
-/*
- * Add "name":"value" to the JSON output,
- * and add name=value to the formatted message.
- *
- * The formatted message will be `log message name=value`
- */
+//Add "name":"value" to the JSON output,
+//The formatted message will be `log message name=value`
 logger.info("log message {}", keyValue("name", "value"));
 
-/*
- * Add "name":"value" ONLY to the JSON output.
- *
- * Since there is no parameter for the argument,
- * the formatted message will NOT contain the key/value.
- *
- * If this looks funny to you or to static analyzers,
- * consider using Markers instead.
- */
+//Add "name":"value" ONLY to the JSON output.
+//the formatted message will NOT contain the key/value.
 logger.info("log message", keyValue("name", "value"));
 
-/*
- * Add multiple key value pairs to both JSON and formatted message
- */
-logger.info("log message {} {}", keyValue("name1", "value1"), keyValue("name2", "value2")));
-
-/*
- * Add "name":"value" to the JSON output and
- * add name=[value] to the formatted message using a custom format.
- */
+//Add multiple key value pairs to both JSON and formatted message
+//add name=[value] to the formatted message using a custom format.
 logger.info("log message {}", keyValue("name", "value", "{0}=[{1}]"));
 
-/*
- * In the JSON output, values will be serialized by Jackson's ObjectMapper.
- * In the formatted message, values will follow the same behavior as logback
- * (formatting of an array or if not an array `toString()` is called).
- *
- * Add "foo":{...} to the JSON output and add `foo.toString()` to the formatted message:
- *
- * The formatted message will be `log message <result of foo.toString()>`
- */
+//values will be serialized by Jackson's ObjectMapper.
+//The formatted message will be `log message <result of foo.toString()>`
 Foo foo  = new Foo();
 logger.info("log message {}", value("foo", foo));
 
-/*
- * Add "name1":"value1","name2":"value2" to the JSON output by using a Map,
- * and add `myMap.toString()` to the formatted message.
- *
- * Note the values can be any object that can be serialized by Jackson's ObjectMapper
- * (e.g. other Maps, JsonNodes, numbers, arrays, etc)
- */
+//Add "name1":"value1","name2":"value2" to the JSON output by using a Map,
+//and add `myMap.toString()` to the formatted message.
 Map myMap = new HashMap();
 myMap.put("name1", "value1");
 myMap.put("name2", "value2");
 logger.info("log message {}", entries(myMap));
 
-/*
- * Add "array":[1,2,3] to the JSON output,
- * and array=[1,2,3] to the formatted message.
- */
+//Add "array":[1,2,3] to the JSON output,
+//and array=[1,2,3] to the formatted message.
 logger.info("log message {}", array("array", 1, 2, 3));
 
-/*
- * Add fields of any object that can be unwrapped by Jackson's UnwrappableBeanSerializer to the JSON output.
- * i.e. The fields of an object can be written directly into the JSON output.
- * This is similar to the @JsonUnwrapped annotation.
- *
- * The formatted message will contain `myobject.toString()`
- */
+// Add fields of any object that can be unwrapped by Jackson's UnwrappableBeanSerializer to the JSON output.
+//The formatted message will contain `myobject.toString()`
 logger.info("log message {}", fields(myobject));
 
-/*
- * In order to normalize a field object name, static helper methods can be created.
- * For example, `foo(Foo)` calls `value("foo" , foo)`
- */
+//In order to normalize a field object name, static helper methods can be created.
+//For example, `foo(Foo)` calls `value("foo" , foo)`
 logger.info("log message {}", foo(foo));
 ```
+
 markers的用法
+
 ```java
 import static net.logstash.logback.marker.Markers.*;
 
-/*
- * Add "name":"value" to the JSON output.
- */
+//Add "name":"value" to the JSON output.
 logger.info(append("name", "value"), "log message");
 
-/*
- * Add "name1":"value1","name2":"value2" to the JSON output by using multiple markers.
- */
+//Add "name1":"value1","name2":"value2" to the JSON output by using multiple markers.
 logger.info(append("name1", "value1").and(append("name2", "value2")), "log message");
 
-/*
- * Add "name1":"value1","name2":"value2" to the JSON output by using a map.
- *
- * Note the values can be any object that can be serialized by Jackson's ObjectMapper
- * (e.g. other Maps, JsonNodes, numbers, arrays, etc)
- */
+//Add "name1":"value1","name2":"value2" to the JSON output by using a map.
 Map myMap = new HashMap();
 myMap.put("name1", "value1");
 myMap.put("name2", "value2");
 logger.info(appendEntries(myMap), "log message");
 
-/*
- * Add "array":[1,2,3] to the JSON output
- */
+//Add "array":[1,2,3] to the JSON output
 logger.info(appendArray("array", 1, 2, 3), "log message");
 
-/*
- * Add "array":[1,2,3] to the JSON output by using raw json.
- * This allows you to use your own json seralization routine to construct the json output
- */
+//Add "array":[1,2,3] to the JSON output by using raw json.
 logger.info(appendRaw("array", "[1,2,3]"), "log message");
 
-/*
- * Add any object that can be serialized by Jackson's ObjectMapper
- * (e.g. Maps, JsonNodes, numbers, arrays, etc)
- */
+//Add any object that can be serialized by Jackson's ObjectMapper
 logger.info(append("object", myobject), "log message");
 
-/*
- * Add fields of any object that can be unwrapped by Jackson's UnwrappableBeanSerializer.
- * i.e. The fields of an object can be written directly into the json output.
- * This is similar to the @JsonUnwrapped annotation.
- */
+//Add fields of any object that can be unwrapped by Jackson's UnwrappableBeanSerializer.
 logger.info(appendFields(myobject), "log message");
 ```
 ### Kibana创建图形
@@ -216,6 +154,7 @@ logger.info(appendFields(myobject), "log message");
     "timestamp" : "2019-12-18T10:00:00Z"
 }
 ```
+
 现在需要在Kibana中创建图形
 - 进入Kibana(7.0.1)操作界面
 - 点击"Visualize"菜单
