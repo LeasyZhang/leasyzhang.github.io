@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "Kibana创建图表"
+title:      "Kibana创建图形"
 subtitle:   "logstash输出自定义结构日志"
 date:       2019-11-28
 author:     "leasy"
@@ -15,7 +15,7 @@ tags:
 > "Logstash输出自定义结构数据"
 
 ### 背景
-最近接到一个任务，需要统计数据库的业务指标，然后日志需要在Kibana上显示，并且需要根据日志内容构建图表。
+最近接到一个任务，需要统计数据库的业务指标，然后日志需要在Kibana上显示，并且需要根据日志内容构建图形展示。
 比如日志输出的内容是
 ```Json
 {
@@ -207,7 +207,7 @@ logger.info(append("object", myobject), "log message");
  */
 logger.info(appendFields(myobject), "log message");
 ```
-### Kibana创建图表
+### Kibana创建图形
 前一步logstash配置完成之后，输出的日志格式是
 ```json
 {
@@ -216,20 +216,20 @@ logger.info(appendFields(myobject), "log message");
     "timestamp" : "2019-12-18T10:00:00Z"
 }
 ```
-现在需要在Kibana中创建图表
+现在需要在Kibana中创建图形
 - 进入Kibana(7.0.1)操作界面
 - 点击"Visualize"菜单
 - 点击创建按钮(➕)
 - 选择Vertical Bar
 - 之后需要选择一个index,某个index表示一系列数据的集合
 - 之后进入图形的配置界面，如图![Vertical Bar](https://leasyzhang.github.io/img/in-post/kibana-visualization/vertical-bar-creation.jpg)
-- Y-Axis的Aggregation改成Sum，sum表示数值的合，我们需要展示的就是数值，Field选择Count,label表示图表显示的标签
+- Y-Axis的Aggregation改成Sum，sum表示数值的合，我们需要展示的就是数值，Field选择Count,label表示图形显示的标签
 - 然后在Buckets添加一个X-Axis，这个是横坐标的值，Aggregation选择Terms，Filed选择timestamp，Order by和Order就用默认的配置，然后点击"Apply Changes"按钮查看生成的图形，配置界面![如下](https://leasyzhang.github.io/img/in-post/kibana-visualization/x-y-config.jpg)
 - 点击Save按钮，输入Visualization的名字，保存创建的图形
 ### 将Visualization添加到Dashboard
 - 点击Dashboard菜单，可以创建新的Dashboard也可以选择已有的Dashboard
 - 点击Edit --> Add会弹出Visualization的选择框
-- 按照Visualization的名字搜索图表，点击图表就可以把创建的图表添加到Dashboard.
+- 按照Visualization的名字搜索图形，点击图形就可以把创建的图形添加到Dashboard.
 ### 结论
 这边文章介绍了如何自定义Logstash输出的字段，以及如何创建一个Kibana的图形。自定义logstash可以通过修改logstash配置文件或者在代码中使用logstash框架提供的功能来实现。
-
+Kibana中Visualization菜单提供了各种样式的图形，可以根据已有的数据来构建目标图形。
