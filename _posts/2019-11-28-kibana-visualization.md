@@ -17,16 +17,19 @@ tags:
 ### 背景
 最近接到一个任务，需要统计数据库的业务指标，然后日志需要在Kibana上显示，并且需要根据日志内容构建图形展示。
 比如日志输出的内容是
+
 ```json
 {
     "timestamp" : "2019-12-17T05:00:08Z",
     "count" : 324
 }
 ```
+
 其他字段忽略不计，我需要构建一个柱状图，横坐标是时间，纵坐标是数量。
 ![柱状图例子](https://leasyzhang.github.io/img/in-post/kibana-visualization/linear-bar.jpg)
 ### logstash输出自定义字段
 当前我们项目所有的日志，是通过logger.info()/logger.error()/logger.warn()来打印，那么通过logstash送出去的日志格式是
+
 ```json
 {
     "timestamp" : "yyyy-MM-dd'T'HH:mm:ss.SSSZZ",
@@ -35,18 +38,22 @@ tags:
     "other fields" : "..."
 }
 ```
+
 通过logger.info等方法输出的内容会在message里面呈现。而且只是字符串类型，不符合预期。
 搜索一番之后，我发现有两种方式可以输出自定义字段。
 - 修改logstash配置
 在logstash的filter中添加json插件，这个插件可以将指定字段序列化，假如在message中打印的日志是
+
 ```json
 {
     "attr1" : "value1",
     "number" : 10
 }
 ```
+
 我们希望将json文件的内容展开成
 修改logstash.conf文件
+
 ```ruby
 filter {
     json {
@@ -55,7 +62,9 @@ filter {
     }
 }
 ```
+
 source对应要处理的字段，这里我们指定message,skip_on_invalid_json指的是如果json解析失败就忽略。配置完成之后，再次发送日志，日志格式会变成
+
 ```json
 {
     "timestamp" : "yyyy-MM-dd'T'HH:mm:ss.SSSZZ",
@@ -66,12 +75,14 @@ source对应要处理的字段，这里我们指定message,skip_on_invalid_json�
     "other fields" : "..."
 }
 ```
+
 - 在代码中输出自定义格式的日志
 我们用的logstash框架是logstash-logback-encoder，这个框架提供了添加自定义字段的功能[自定义字段参考](https://github.com/logstash/logstash-logback-encoder#event-specific-custom-fields)
 输出日志的时候有两种方式输出日志
 - structured arguments，这是StructuredArguments提供的机制
 - markers，这是Markers提供的功能
-structured arguments的用法
+structured arguments的用法:
+
 ```java
 import static net.logstash.logback.argument.StructuredArguments.*;
 
@@ -116,7 +127,7 @@ logger.info("log message {}", fields(myobject));
 logger.info("log message {}", foo(foo));
 ```
 
-markers的用法
+markers的用法:
 
 ```java
 import static net.logstash.logback.marker.Markers.*;
@@ -145,8 +156,10 @@ logger.info(append("object", myobject), "log message");
 //Add fields of any object that can be unwrapped by Jackson's UnwrappableBeanSerializer.
 logger.info(appendFields(myobject), "log message");
 ```
+
 ### Kibana创建图形
 前一步logstash配置完成之后，输出的日志格式是
+
 ```json
 {
     "Tag": "CustomTag",
