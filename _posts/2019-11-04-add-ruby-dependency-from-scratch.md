@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Customize Docker file with Rails Dependency"
-subtitle:   "Install "
+subtitle:   "Install Rails for docker image"
 date:       2019-11-04
 author:     "leasy"
 header-img: "img/post-bg-2015.jpg"
