@@ -82,7 +82,7 @@ source对应要处理的字段，这里我们指定message,skip_on_invalid_json�
 - structured arguments，这是StructuredArguments提供的机制
 - markers，这是Markers提供的功能
 
-structured arguments的用法:
+- structured arguments的用法:
 
 ```java
 import static net.logstash.logback.argument.StructuredArguments.*;
@@ -128,7 +128,7 @@ logger.info("log message {}", fields(myobject));
 logger.info("log message {}", foo(foo));
 ```
 
-markers的用法:
+- markers的用法:
 
 ```java
 import static net.logstash.logback.marker.Markers.*;
