@@ -81,6 +81,7 @@ source对应要处理的字段，这里我们指定message,skip_on_invalid_json�
 输出日志的时候有两种方式输出日志
 - structured arguments，这是StructuredArguments提供的机制
 - markers，这是Markers提供的功能
+
 structured arguments的用法:
 
 ```java
