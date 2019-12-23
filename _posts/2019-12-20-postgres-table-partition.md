@@ -267,7 +267,7 @@ ALTER TABLE log_by_type DETACH PARTITION log_error;
 - 分区表的主表和普通表不能相互转换，但是可以在分区表建好之后添加新的分区表和删除已有的分区表。分区表的子表可以转换成普通的数据库表。
 - 普通的表无法继承分区表，反之亦然。
 
-引用
+### 引用
 
 - PostgreSQL [官方文档](https://www.postgresql.org/docs/10/ddl-partitioning.html#DDL-PARTITIONING-OVERVIEW)
 - [Hash partition介绍](https://blog.dbi-services.com/hash-partitioning-in-postgresql-11/)
