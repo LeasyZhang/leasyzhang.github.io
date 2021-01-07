@@ -1,125 +1,108 @@
 ---
 layout:     post
-title:      "Use PostgreSQL jsonb type with Shardingsphere"
-subtitle:   "Within Spring Framework"
+title:      "Use PostgreSQL jsonb type with ShardingSphere"
+subtitle:   "Within Spring Data Jpa"
 date:       2021-01-04
 author:     "leasy"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
 tags:
-    - Shardingsphere
+    - ShardingSphere
     - PostgreSQL
     - Spring
 ---
 
 > "在Shardingsphere框架中使用Postgres Jsonb数据"
 
-这篇文章介绍一种二叉树的遍历方式，这种遍历方式可以做到以下要求：
+这篇文章介绍如何在ShardingSphere框架中使用postgres jsonb类型的数据：
 
-- O(1)空间复杂度；
-- 二叉树的形状不能被破坏(遍历的过程中可以有修改，遍历完成之后二叉树形状和初始相同)。
-
-本文只介绍中序遍历的方式。
-
-#### 定义树的数据结构
+经过本地验证，ShardingSphere无法支持JPA和PostgreSQL Jsonb同时使用，如果同时使用会报
 
 ```java
-public class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
-    TreeNode(int val) {
-        this.val = val;
+Can't infer the SQL type to use for an instance of com.fasterxml.jackson.databind.node.ObjectNode. Use setObject() with an explicit Types value to specify the type to use.
+```
+
+这种错误，为了支持Jsonb数据类型，只能使用SQL语句来操作包含Jsonb的表。
+
+本文操作的对象是:
+
+```java
+public class News implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "author")
+    private String author;
+
+    @Column(name = "content", columnDefinition = "jsonb")
+    private String content;
+}
+```
+
+这是Jpa定义的Repo类
+
+```java
+@Repository
+public interface NewsRepo extends JpaRepository<News, Long> {
+}
+```
+
+这个类如果不扩展的话是不支持对news表的增删改查的，我们继承一个接口来扩展这个Repo:
+
+```java
+public interface NewsRepoCustom {
+    News saveOne(News news);
+}
+```
+
+然后让NewsRepo继承这个接口。
+接下来我们需要自己实现扩展出来的接口，在Jpa框架下如果要执行自定义SQL，需要注入EntityManager这个对象。
+
+```java
+@Component
+public class NewsRepoImpl implements NewsRepoCustom {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Override
+    public News saveOne(final News news) {
+        return null;
     }
 }
 ```
 
-#### 二叉树常用的遍历方式
+PostgreSQL中向数据表插入jsonb数据，需要使用jsonb函数，如果向本文使用的news表插入数据，SQL应该是：
 
-- 递归
-
-递归的实现非常简单直观，不过递归的方式本身占用stack空间，递归的实现代码
-
-```java
-/**
-* 时间复杂度O(n)
-* 空间复杂度O(n)
-*/
-public void inOrderTraversal(TreeNode root) {
-    inOrderTraversal(root.left);
-    //Do something on root
-    System.out.println(root.val);
-    inOrderTraversal(root.left);
-}
+```sql
+insert into news (title, author, content) values ('', '', ''::jsonb);
 ```
 
-- 辅助栈
-
-辅助栈不需要递归，不过需要建立一个队列来存放树节点
+所以我们需要在NewsRepoImpl的saveOne方法中执行Raw SQL：
 
 ```java
-/**
-* 时间复杂度O(n)
-* 空间复杂度O(n)
-*/
-public void inOrderTraversal(TreeNode root) {
-    Stack<TreeNode> stk = new Stack<>();
-    TreeNode cur = root;
-    while (cur != null || !stk.isEmpty()) {
-        if (cur != null) {
-            stk.push(cur);
-            cur = cur.left;
-        } else if (!stk.isEmpty()) {
-            System.out.println(stk.peek().val);
-            cur = stk.peek().right;
-            stk.pop();
-        }
+Session session = entityManager.unwrap(Session.class);
+return session.doReturningWork(connection -> {
+    String sql = "insert into news(title, author, content) values (?, ?, ?::jsonb)";
+    PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    int paramIndex = 1;
+    ps.setString(paramIndex++, news.getTitle());
+    ps.setString(paramIndex++, news.getAuthor());
+    ps.setString(paramIndex, news.getContent());
+    ps.executeUpdate();
+    ResultSet result = ps.getGeneratedKeys();
+    while (result.next()) {
+        news.setId(result.getLong(1));
     }
-}
+    ps.close();
+    return news;
+});
 ```
 
-#### Morris遍历
-
-Morris 遍历方法可以做到这两点。要使用O(1)空间进行遍历，最大的难点在于，遍历到子节点的时候怎样重新返回到父节点，由于不能用栈作为辅助空间。为了解决这个问题，Morris方法用到了线索二叉树的概念。在Morris方法中不需要为每个节点额外分配指针指向其前驱和后继节点，只需要利用叶子节点中的左右空指针指向前驱节点或后继节点就可以了。
-
-##### 步骤
-
-- 1.如果当前节点的左孩子为空，则输出当前节点并将其右孩子作为当前节点。
-- 2.如果当前节点的左孩子不为空，在当前节点的左子树中找到当前节点在中序遍历下的前驱节点。
-  - 如果前驱节点的右孩子为空，将它的右孩子设置为当前节点。当前节点更新为当前节点的左孩子。
-  - 如果前驱节点的右孩子为当前节点，将它的右孩子重新设为空（恢复树的形状）。输出当前节点。当前节点更新为当前节点的右孩子。
-- 3.重复以上1、2直到当前节点为空。
-
-![遍历过程图示]((https://leasyzhang.github.io/img/in-post/morris-traversal/morris.jpg))
-
-代码
-
-```java
-/**
-* 时间复杂度O(n): n个节点的二叉树有n-1条边，每条边最多走两次，一次是为了访问节点，一次是为了访问前驱节点
-* 空间复杂度O(1):用了两个辅助变量
-*/
-public void morrisInOrder(TreeNode root) {
-    TreeNode cur = root;
-    while(cur != null) {
-        if(cur.left != null) {
-            TreeNode prev = cur.left;
-            while(prev.right != null && prev.right != cur) {
-                prev = prev.right;
-            }
-
-            if(prev.right == cur) {
-                System.out.println(cur.val);
-                cur = cur.right;
-                prev.right = null;
-            } else {
-                prev.right = cur;
-                cur = cur.left;
-            }
-        } else {
-            System.out.println(cur.val);
-            cur = cur.right;
-        }
-    }
-}
-```
+这样子就可以实现向数据表中插入jsonb类型的数据了。如果想要查看完整的例子，可以参考这个[Github Repo](https://github.com/LeasyZhang/spring-boot-example/tree/master/spring-boot-shardingsphere-jsonb)。
